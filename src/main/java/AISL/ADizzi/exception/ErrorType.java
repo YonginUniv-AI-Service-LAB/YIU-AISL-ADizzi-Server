@@ -25,6 +25,7 @@ public enum ErrorType {
     KAKAO_USER_INFO_REQUEST_FAILED("E202", "카카오 사용자 정보 요청에 실패했습니다."),
     NAVER_USER_INFO_REQUEST_FAILED("E203", "네이버 사용자 정보 요청에 실패했습니다."),
     GOOGLE_USER_INFO_REQUEST_FAILED("E204", "구글 사용자 정보 요청에 실패했습니다."),
+    MAIL_SEND_FAILED("E205", "이메일 전송에 실패했습니다."),
 
     // 파일 관련 오류
     FILE_UPLOAD_ERROR("E301", "파일 업로드 중 오류가 발생하였습니다."),
@@ -37,9 +38,6 @@ public enum ErrorType {
     FILE_NOT_FOUND("E501", "해당 파일을 찾을 수 없습니다."),
     EMAIL_ALREADY_EXISTS("E502", "이미 사용 중인 이메일입니다."),
     MEMBER_NOT_FOUND("E503", "해당 회원을 찾을 수 없습니다."),
-    POST_NOT_FOUND("E504", "해당 게시물을 찾을 수 없습니다."),
-    COMMENT_NOT_FOUND("E505", "해당 댓글을 찾을 수 없습니다."),
-    TAG_NOT_FOUND("E506", "해당 태그를 찾을 수 없습니다."),
 
     // 형식 관련 오류
     INVALID_DATE_FORMAT("E601", "올바른 날짜 형식이 아닙니다."),

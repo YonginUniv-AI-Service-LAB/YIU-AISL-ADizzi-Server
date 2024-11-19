@@ -1,5 +1,9 @@
 package AISL.ADizzi.controller;
 
+import AISL.ADizzi.dto.request.MailRequest;
+import AISL.ADizzi.exception.ApiException;
+import AISL.ADizzi.exception.ErrorType;
+import AISL.ADizzi.service.MailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,6 +30,9 @@ import java.util.List;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MailService mailService;
+
+    private String authNumber;
 
     @Operation(summary = "[API 연동 테스트 용]현재 시간 조회")
     @GetMapping("/time")
@@ -71,6 +78,18 @@ public class MemberController {
     public ResponseEntity<String> refreshAccessToken(@RequestHeader("Authorization") String refreshToken) {
         Long memberId = JwtUtil.extractAccessToken(refreshToken);
         return ResponseEntity.ok(memberService.refreshAccessToken(memberId));
+    }
+
+    @Operation(summary = "인증 메일 전송")
+    @PostMapping("/mail")
+    public ResponseEntity<String> sendMail(@RequestBody MailRequest request) {
+        try {
+            authNumber = mailService.sendMail(request.getEmail());
+        } catch (Exception e) {
+            throw new ApiException(ErrorType.MAIL_SEND_FAILED);
+        }
+
+        return ResponseEntity.ok(authNumber);
     }
 
 }
