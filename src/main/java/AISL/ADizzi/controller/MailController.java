@@ -17,7 +17,7 @@ import jakarta.validation.Valid;
 public class MailController {
     private final MailSendService mailService;
 
-    @PostMapping("/mail")
+    @PostMapping("/api/mail")
     public String mailSend(@RequestBody @Valid EmailRequestDto emailDto) {
         System.out.println("이메일 인증 이메일 :" + emailDto.getEmail());
         return mailService.joinEmail(emailDto.getEmail());

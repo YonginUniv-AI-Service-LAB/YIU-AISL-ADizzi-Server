@@ -17,4 +17,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     // 이름으로 검색
     List<Room> findByTitleContaining(String query);
+
+    // 사용자에게 같은 이름의 방이 있는지 검색
+    boolean existsByMemberAndTitle(Member member, String title);
 }

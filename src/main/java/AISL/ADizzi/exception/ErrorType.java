@@ -48,15 +48,9 @@ public enum ErrorType {
     INVALID_PASSWORD("E701", "비밀번호가 일치하지 않습니다."),
     INVALID_AUTHOR("E702", "작성자 본인이 아닙니다."),
 
-    // 좋아요 북마크 관련
-    ALREADY_LIKED("E801", "이미 좋아요 상태입니다."),
-    NOT_LIKED("E802", "좋아요 상태가 아닙니다."),
-    ALREADY_BOOKMARKED("E803", "이미 북마크 상태입니다."),
-    NOT_BOOKMARKED("E804", "북마크 상태가 아닙니다."),
-
-    // 태그 관련
-    TAG_COUNT_TOO_LOW("E901", "태그는 최소 1개 이상이어야 합니다."),
-    TAG_COUNT_TOO_HIGH("E902", "태그는 최대 10개까지만 허용됩니다. "),
+    // 방 관련
+    ROOM_ALREADY_EXISTS("E801", "이미 사용 중인 이름입니다."),
+    ROOM_NOT_FOUND("E802", "해당 방을 찾을 수 없습니다."),
     ;
     private final String code;
     private final String message;
