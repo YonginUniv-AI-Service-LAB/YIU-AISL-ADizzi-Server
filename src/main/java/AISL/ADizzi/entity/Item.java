@@ -48,6 +48,7 @@ public class Item {
     public Item(Slot slot, String title, String detail, Image image, Long category) {
         this.slot = slot;
         this.title = title;
+        this.detail = detail;
         this.image = image;
         this.category = category;
         this.createdAt = LocalDateTime.now(); // 객체 생성 시 현재 시간으로 설정

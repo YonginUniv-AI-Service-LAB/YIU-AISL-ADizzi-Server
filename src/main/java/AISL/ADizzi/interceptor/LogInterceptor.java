@@ -11,7 +11,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
+// print같은 것을 쓸때 가로챈다
 @Slf4j
 @Component
 public class LogInterceptor implements HandlerInterceptor {
