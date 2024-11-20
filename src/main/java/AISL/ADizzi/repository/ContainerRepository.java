@@ -1,6 +1,7 @@
 package AISL.ADizzi.repository;
 
 import AISL.ADizzi.entity.Container;
+import AISL.ADizzi.entity.Member;
 import AISL.ADizzi.entity.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -16,4 +17,7 @@ public interface ContainerRepository extends JpaRepository<Container, Long> {
 
     // 이름으로 검색
     List<Container> findByTitleContaining(String query);
+
+
+    boolean existsByRoomAndTitle(Room room, String title);
 }
