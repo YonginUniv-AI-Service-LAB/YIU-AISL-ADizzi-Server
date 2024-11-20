@@ -57,7 +57,20 @@ public enum ErrorType {
     // 태그 관련
     TAG_COUNT_TOO_LOW("E901", "태그는 최소 1개 이상이어야 합니다."),
     TAG_COUNT_TOO_HIGH("E902", "태그는 최대 10개까지만 허용됩니다. "),
-    ;
+
+
+    // 슬롯 관련
+    SLOT_NOT_FOUND("E1003","해당 슬롯을 찾을 수 없습니다." ),
+
+    // 물건 관련
+    ITEM_ALREADY_EXISTS("E1001", "이미 사용 중인 이름입니다."),
+    ITEM_NOT_FOUND("E1002", "해당 물건을 찾을 수 없습니다."),
+
+
+    // 사진
+    IMAGE_NOT_FOUND("E1101","해당 사진을 찾을 수 없습니다." ),
+    INVALID_IMAGE("E1102", "해당 사진이 비어있습니다." ),
+    IMAGE_UPLOAD_FAILED("E1103","업로드 실패." );
     private final String code;
     private final String message;
 }

@@ -2,6 +2,7 @@ package AISL.ADizzi.repository;
 
 import AISL.ADizzi.entity.Container;
 import AISL.ADizzi.entity.Item;
+import AISL.ADizzi.entity.Member;
 import AISL.ADizzi.entity.Slot;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,7 +23,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     // 설명으로 검색
     List<Item> findByDetailContaining(String query);
 
-    // 수납칸에 해당하는 물건 카태고리로 조회
+    // 수납칸에 해당하는 물건 카테고리로 조회
     @Query("SELECT i FROM Item i WHERE i.slot = :slot AND i.category = :category")
     List<Item> findBySlotAndCategory(Slot slot, @Param("category") Long category);
+
+    // 해당 슬롯에 같은 이름의 아이템이 있는지 검색
+    boolean existsBySlotAndTitle(Slot slot, String title);
 }
