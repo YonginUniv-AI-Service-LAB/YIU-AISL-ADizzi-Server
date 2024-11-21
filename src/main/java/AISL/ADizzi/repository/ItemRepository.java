@@ -29,4 +29,5 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     // 해당 슬롯에 같은 이름의 아이템이 있는지 검색
     boolean existsBySlotAndTitle(Slot slot, String title);
+
 }

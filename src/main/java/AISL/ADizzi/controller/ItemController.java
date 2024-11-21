@@ -24,34 +24,33 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @Operation(summary = "슬롯에 속한 아이템 목록 조회(최신순,오래된순)")
+    @Operation(summary = "수납칸에 속한 물건 목록 조회(최신순,오래된순)")
     @GetMapping("/room/{room_id}/container/{container_id}/slot/{slot_id}")
     public ResponseEntity<List<ItemResponse>> getMyItems(
             @RequestHeader("Authorization") String token,
-            @PathVariable Long room_id,
-            @PathVariable Long container_id,
             @PathVariable Long slot_id,
             @RequestParam(value = "sortBy", defaultValue = "recent") String sortBy)
     {
-        List<ItemResponse> items = itemService.getMyItems(token,slot_id, sortBy);
+        Long memberId = JwtUtil.extractAccessToken(token);
+        List<ItemResponse> items = itemService.getMyItems(memberId,slot_id,sortBy);
         return ResponseEntity.ok(items);
     }
 
-    @Operation(summary = "슬롯에 아이템 생성")
-    @PostMapping("/room/{room_id}/container/{container_id}/slot/{slot_id}")
+    @Operation(summary = "수납칸에 물건 생성")
+    @PostMapping("/room/{room_id}/container/{container_id}/slot/{slot_id}/item")
     public ResponseEntity<String> createItem(
             @RequestHeader("Authorization") String token,
             @PathVariable Long slot_id,
-            @Valid @RequestBody CreateItemRequest request,
-            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile)
+            @Valid @RequestBody CreateItemRequest request)
     {
 
-        itemService.createItem(token,slot_id, request,imageFile);
+        Long memberId = JwtUtil.extractAccessToken(token);
+        itemService.createItem(memberId,slot_id,request);
         return ResponseEntity.ok("success");
     }
 
 
-    @Operation(summary ="아이템 수정")
+    @Operation(summary ="물건 수정")
     @PutMapping("/room/{room_id}/container/{container_id}/slot/{slot_id}/item/{item_id}")
     public ResponseEntity<String> updateItem(
             @RequestHeader("Authorization") String token,
@@ -60,20 +59,19 @@ public class ItemController {
             @Valid @RequestBody UpdateItemRequest request)
     {
 
-        itemService.updateItem(token, slot_id, item_id, request);
+        Long memberId = JwtUtil.extractAccessToken(token);
+        itemService.updateItem(memberId, slot_id, item_id, request);
         return ResponseEntity.ok("success");
     }
 
-    @Operation(summary = "아이템 삭제")
+    @Operation(summary = "물건 삭제")
     @DeleteMapping("/room/{room_id}/container/{container_id}/slot/{slot_id}/item/{item_id}")
     public ResponseEntity<String> deleteItem(
             @RequestHeader("Authorization") String token,
-            @PathVariable Long room_id,
-            @PathVariable Long container_id,
-            @PathVariable Long slot_id,
             @PathVariable Long item_id)
     {
-        itemService.deleteItem(token,item_id);
+        Long memberId = JwtUtil.extractAccessToken(token);
+        itemService.deleteItem(memberId,item_id);
         return ResponseEntity.ok("success");
     }
 
