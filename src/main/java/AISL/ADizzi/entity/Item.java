@@ -45,7 +45,11 @@ public class Item {
     @JoinColumn(name = "image_id", nullable = true)
     private Image image;
 
-    public Item(Slot slot, String title, String detail, Image image, Long category) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private Member member; // 방 작성자
+
+    public Item(Slot slot, String title, String detail, Image image, Long category, Member member) {
         this.slot = slot;
         this.title = title;
         this.detail = detail;
@@ -53,6 +57,7 @@ public class Item {
         this.category = category;
         this.createdAt = LocalDateTime.now(); // 객체 생성 시 현재 시간으로 설정
         this.updatedAt = LocalDateTime.now(); // 객체 생성 시 현재 시간으로 설정
+        this.member = member;
     }
 }
 
