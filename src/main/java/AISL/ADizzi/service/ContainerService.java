@@ -2,6 +2,7 @@ package AISL.ADizzi.service;
 
 import AISL.ADizzi.dto.request.CreateContainerRequest;
 import AISL.ADizzi.dto.request.UpdateContainerRequest;
+import AISL.ADizzi.dto.response.ContainerResponse;
 import AISL.ADizzi.entity.Container;
 import AISL.ADizzi.entity.Image;
 import AISL.ADizzi.entity.Member;
@@ -31,10 +32,10 @@ public class ContainerService {
     private final ImageRepository imageRepository;
 
     @Transactional
-    public void createContainer(Long memberId, Long RoomId, CreateContainerRequest request) {
+    public void createContainer(Long memberId, Long roomId, CreateContainerRequest request) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
-        Room room = roomRepository.findById(RoomId).orElseThrow(() -> new ApiException(ErrorType.ROOM_NOT_FOUND));
+        Room room = roomRepository.findById(roomId).orElseThrow(() -> new ApiException(ErrorType.ROOM_NOT_FOUND));
 
         if (containerRepository.existsByRoomAndTitle(room, request.getTitle())) {
             throw new ApiException(ErrorType.CONTAINER_ALREADY_EXISTS);
@@ -48,12 +49,13 @@ public class ContainerService {
                 image
         );
 
+        // TODO: Default 슬롯 생성 코드 추가 필요 (슬롯 api작성 후)
+
         containerRepository.save(container);
     }
 
     @Transactional
-    public void updateConatiner(Long memberId, Long ContainerId, UpdateContainerRequest request) {
-
+    public void updateContainer(Long memberId, Long ContainerId, UpdateContainerRequest request) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
         Container container = containerRepository.findById(ContainerId).orElseThrow(() -> new ApiException(ErrorType.CONTAINER_NOT_FOUND));
 
@@ -78,15 +80,31 @@ public class ContainerService {
 
     @Transactional
     public void deleteContainer(Long memberId, Long ContainerId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
         Container container = containerRepository.findById(ContainerId).orElseThrow(() -> new ApiException(ErrorType.CONTAINER_NOT_FOUND));
 
-        if (!container.getRoom().getMember().equals(memberId)) {
+        if (!container.getRoom().getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
 
         containerRepository.delete(container);
     }
 
-    
+    @Transactional(readOnly = true)
+    public List<ContainerResponse> getMyContainer(Long roomId, String sortBy) {
+        Room room = roomRepository.findById(roomId).orElseThrow(() -> new ApiException(ErrorType.ROOM_NOT_FOUND));
+        List<Container> containers;
+
+        switch (sortBy.toLowerCase()) {
+            case "old":
+                containers = containerRepository.findByRoomOrderByUpdatedAtAsc(room);
+                break;
+            case "recent":
+            default:
+                containers = containerRepository.findByRoomOrderByUpdatedAtDesc(room);
+                break;
+        }
+        return containers.stream().map(ContainerResponse::new).collect(Collectors.toList());
+    }
 
 }
