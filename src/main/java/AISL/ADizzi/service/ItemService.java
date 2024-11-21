@@ -96,10 +96,11 @@ public class ItemService {
     // 아이템 수정
     @Transactional
     public void updateItem(Long memberId,Long slotId,Long itemId, UpdateItemRequest request) {
+        Member member = memberRepository.findById(memberId).orElseThrow(()->new ApiException(ErrorType.MEMBER_NOT_FOUND));
 
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ApiException(ErrorType.ITEM_NOT_FOUND));
         // 사용자가 슬롯에 접근할 권한이 있는지 검사
-        if(!item.getMember().getId().equals(memberId)){
+        if(!item.getMember().equals(member)){
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
         // 슬롯 조회
@@ -108,7 +109,6 @@ public class ItemService {
 
         //슬롯에 동이한 title을 가진 아이템이 있는지 중복 검사
         if(request.getTitle() != null) {
-            memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
             if (itemRepository.existsBySlotAndTitle(slot, request.getTitle())) {
                 throw new ApiException(ErrorType.ITEM_ALREADY_EXISTS);  /// 슬롯을 아이템으로 변경
             }
@@ -136,10 +136,10 @@ public class ItemService {
     @Transactional
     public void deleteItem(Long memberId, Long ItemId) {
 
-        memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(()->new ApiException(ErrorType.MEMBER_NOT_FOUND));
         Item item = itemRepository.findById(ItemId).orElseThrow(() -> new ApiException(ErrorType.ITEM_NOT_FOUND));
 
-        if (!item.getMember().getId().equals(memberId)) {
+        if (!item.getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
 
