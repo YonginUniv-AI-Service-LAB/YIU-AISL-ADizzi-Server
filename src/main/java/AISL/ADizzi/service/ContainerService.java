@@ -55,9 +55,9 @@ public class ContainerService {
     }
 
     @Transactional
-    public void updateContainer(Long memberId, Long ContainerId, UpdateContainerRequest request) {
+    public void updateContainer(Long memberId, Long containerId, UpdateContainerRequest request) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
-        Container container = containerRepository.findById(ContainerId).orElseThrow(() -> new ApiException(ErrorType.CONTAINER_NOT_FOUND));
+        Container container = containerRepository.findById(containerId).orElseThrow(() -> new ApiException(ErrorType.CONTAINER_NOT_FOUND));
 
         if (!container.getRoom().getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
@@ -79,9 +79,9 @@ public class ContainerService {
     }
 
     @Transactional
-    public void deleteContainer(Long memberId, Long ContainerId) {
+    public void deleteContainer(Long memberId, Long containerId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
-        Container container = containerRepository.findById(ContainerId).orElseThrow(() -> new ApiException(ErrorType.CONTAINER_NOT_FOUND));
+        Container container = containerRepository.findById(containerId).orElseThrow(() -> new ApiException(ErrorType.CONTAINER_NOT_FOUND));
 
         if (!container.getRoom().getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);

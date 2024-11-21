@@ -55,6 +55,7 @@ public enum ErrorType {
     CONTAINER_NOT_FOUND("E1202", "해당 수납장을 찾을 수 없습니다."),
 
     // 슬롯 관련
+    SLOT_ALREADY_EXISTS("E901", "이미 사용 중인 이름입니다."),
     SLOT_NOT_FOUND("E902","해당 슬롯을 찾을 수 없습니다." ),
 
     // 물건 관련
