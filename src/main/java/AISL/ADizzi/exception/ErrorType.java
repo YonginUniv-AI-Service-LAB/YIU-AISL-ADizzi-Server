@@ -65,7 +65,14 @@ public enum ErrorType {
     // 이미지
     IMAGE_NOT_FOUND("E1101","해당 이미지을 찾을 수 없습니다." ),
     INVALID_IMAGE("E1102", "해당 이미지이 비어있습니다." ),
-    IMAGE_UPLOAD_FAILED("E1103","업로드 실패." )
+    IMAGE_UPLOAD_FAILED("E1103","업로드 실패." ),
+
+    EMPTY_FILE_EXCEPTION("E1301", "이미지 파일이 비어있습니다." ),
+    IO_EXCEPTION_ON_IMAGE_UPLOAD("E1302", "이미지 업로드 중 문제가 발생하였습니다." ),
+    NO_FILE_EXTENTION("E1303", "파일의 확장자가 없습니다." ),
+    INVALID_FILE_EXTENTION("E1304", "유효한 파일 확장자가 아닙니다." ),
+    PUT_OBJECT_EXCEPTION("E1305", "이미지 업로드 실패" ),
+    IO_EXCEPTION_ON_IMAGE_DELETE("E1306", "이미지 삭제 실패" )
     ;
 
     private final String code;
