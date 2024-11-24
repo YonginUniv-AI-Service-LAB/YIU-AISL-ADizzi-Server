@@ -3,16 +3,10 @@ package AISL.ADizzi.service;
 import AISL.ADizzi.dto.request.CreateContainerRequest;
 import AISL.ADizzi.dto.request.UpdateContainerRequest;
 import AISL.ADizzi.dto.response.ContainerResponse;
-import AISL.ADizzi.entity.Container;
-import AISL.ADizzi.entity.Image;
-import AISL.ADizzi.entity.Member;
-import AISL.ADizzi.entity.Room;
+import AISL.ADizzi.entity.*;
 import AISL.ADizzi.exception.ApiException;
 import AISL.ADizzi.exception.ErrorType;
-import AISL.ADizzi.repository.ContainerRepository;
-import AISL.ADizzi.repository.ImageRepository;
-import AISL.ADizzi.repository.MemberRepository;
-import AISL.ADizzi.repository.RoomRepository;
+import AISL.ADizzi.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +24,7 @@ public class ContainerService {
     private final RoomRepository roomRepository;
     private final ContainerRepository containerRepository;
     private final ImageRepository imageRepository;
+    private final SlotRepository slotRepository;
 
     @Transactional
     public void createContainer(Long memberId, Long roomId, CreateContainerRequest request) {
@@ -50,8 +45,15 @@ public class ContainerService {
         );
 
         // TODO: Default 슬롯 생성 코드 추가 필요 (슬롯 api작성 후)
+        Slot slot = new Slot(
+                container,
+                " ",
+                image
+        );
 
         containerRepository.save(container);
+        slotRepository.save(slot);
+
     }
 
     @Transactional

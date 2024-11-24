@@ -21,18 +21,19 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-@Tag(name = "이미지 API")
+@Tag(name = "이미지 관련 API")
 public class ImageController {
 
     private final S3ImageService s3ImageService;
 
-    @PostMapping("/s3/upload")
+    @Operation(summary = "이미지 업로드")
+    @PostMapping("/s3")
     public ResponseEntity<?> s3Upload(@RequestPart(value = "image", required = false) MultipartFile image){
         String profileImage = s3ImageService.upload(image);
         return ResponseEntity.ok(profileImage);
     }
-
-    @GetMapping("/s3/delete")
+    @Operation(summary = "이미지 삭제")
+    @DeleteMapping("/s3")
     public ResponseEntity<?> s3delete(@RequestParam String addr){
         s3ImageService.deleteImageFromS3(addr);
         return ResponseEntity.ok(null);

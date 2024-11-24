@@ -19,7 +19,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@Tag(name = "아이템 관련 API")
+@Tag(name = "물건 관련 API")
 public class ItemController {
 
     private final ItemService itemService;
