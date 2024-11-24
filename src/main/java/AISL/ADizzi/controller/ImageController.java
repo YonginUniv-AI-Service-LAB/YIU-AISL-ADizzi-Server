@@ -26,13 +26,13 @@ public class ImageController {
 
     private final S3ImageService s3ImageService;
 
-    @Operation(summary = "이미지 업로드")
+    @Operation(summary = "이미지 업로드. Header: {Content-Type: multipart/form-data}, Body(form-data): {image: IMAGE_FILE}")
     @PostMapping("/s3")
     public ResponseEntity<?> s3Upload(@RequestPart(value = "image", required = false) MultipartFile image){
         String profileImage = s3ImageService.upload(image);
         return ResponseEntity.ok(profileImage);
     }
-    @Operation(summary = "이미지 삭제")
+    @Operation(summary = "이미지 삭제. 이미지 URL입력")
     @DeleteMapping("/s3")
     public ResponseEntity<?> s3delete(@RequestParam String addr){
         s3ImageService.deleteImageFromS3(addr);
