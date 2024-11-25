@@ -1,7 +1,6 @@
 package AISL.ADizzi.controller;
 
 import AISL.ADizzi.dto.request.CreateItemRequest;
-import AISL.ADizzi.dto.request.MoveItemRequest;
 import AISL.ADizzi.dto.request.UpdateItemRequest;
 import AISL.ADizzi.dto.response.ItemResponse;
 import AISL.ADizzi.service.ItemService;
@@ -12,9 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -65,11 +63,10 @@ public class ItemController {
     public ResponseEntity<String> moveItem(
             @RequestHeader("Authorization") String token,
             @PathVariable Long slotId,
-            @PathVariable Long itemId,
-            @Valid @RequestBody MoveItemRequest request
+            @PathVariable Long itemId
     ){
         Long memberId = JwtUtil.extractAccessToken(token);
-        itemService.moveItem(memberId, slotId, itemId, request);
+        itemService.moveItem(memberId, slotId, itemId);
         return ResponseEntity.ok("success");
     }
 

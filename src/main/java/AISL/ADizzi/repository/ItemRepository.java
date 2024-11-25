@@ -30,5 +30,5 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     // 해당 수납칸에 같은 이름의 물건이 있는지 검색
     boolean existsBySlotAndTitle(Slot slot, String title);
 
-    String countBySlotAndTitleLike(Slot targetSlot, String s);
+    int countBySlotAndTitle(Slot targetSlot, String title);
 }

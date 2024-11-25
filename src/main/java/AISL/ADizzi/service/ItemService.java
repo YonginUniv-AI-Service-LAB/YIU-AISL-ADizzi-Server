@@ -1,7 +1,6 @@
 package AISL.ADizzi.service;
 
 import AISL.ADizzi.dto.request.CreateItemRequest;
-import AISL.ADizzi.dto.request.MoveItemRequest;
 import AISL.ADizzi.dto.request.UpdateItemRequest;
 import AISL.ADizzi.dto.response.ItemResponse;
 import AISL.ADizzi.entity.Image;
@@ -128,7 +127,7 @@ public class ItemService {
 
     // 물건 이동
     @Transactional
-    public void moveItem(Long memberId, Long slotId, Long itemId, MoveItemRequest request) {
+    public void moveItem(Long memberId, Long slotId, Long itemId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
         Slot targetSlot = slotRepository.findById(slotId)
@@ -141,31 +140,23 @@ public class ItemService {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
 
-        if (request.getTitle() != null) {
-            // 물건을 옮길 수납칸에 중복된 title이 있을 경우 "title(1)" 형태로 수정
-            while (itemRepository.existsBySlotAndTitle(targetSlot, request.getTitle())) {
-                String newTitle = request.getTitle().replaceAll("(\\(\\d+\\))?$", "")
-                        + " (" + (itemRepository.countBySlotAndTitleLike(targetSlot, request.getTitle() + " (%") + 1) + ")";
-                request.setTitle(newTitle);  // 수정된 title 설정
+        // 물건을 옮길 수납칸에 중복된 title이 있을 경우 "title(1)" 형태로 수정
+        String baseTitle = item.getTitle();  // 원본 title
+        String newTitle = baseTitle;  // 새로운 제목 (기본값은 원본 제목)
+        int count = itemRepository.countBySlotAndTitle(targetSlot, baseTitle);  // 기존 제목 중복 갯수
+
+        // 중복 제목이 있을 경우 "title(1)", "title(2)" 형식으로 수정
+        if (count > 0) {
+            // 중복된 제목이 있으면 "(1)", "(2)", "(3)" 등으로 변경
+            int index = 1;
+            while (itemRepository.existsBySlotAndTitle(targetSlot, newTitle)) {
+                newTitle = baseTitle + " (" + index + ")";
+                index++;
             }
-            item.setTitle(request.getTitle());  // 최종적으로 수정된 title을 물건에 설정
+            item.setTitle(newTitle);
         }
 
-        // 필드 업데이트 및 저장
-        if (request.getTitle() != null) {
-            item.setTitle(request.getTitle());
-        }
-        if (request.getDetail() != null) {
-            item.setDetail(request.getDetail());
-        }
-        if (request.getCategory() != null) {
-            item.setCategory(request.getCategory());
-        }
-        if (request.getImageId() != null) {
-            Image image = imageRepository.findById(request.getImageId())
-                    .orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
-            item.setImage(image);
-        }
+
         item.setSlot(targetSlot);
         item.setUpdatedAt(LocalDateTime.now());
 
