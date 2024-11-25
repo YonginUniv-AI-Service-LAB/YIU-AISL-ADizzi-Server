@@ -17,16 +17,20 @@ public class ContainerResponse {
     @Schema(description = "수납장 이름")
     private String title;
 
+    @Schema(description = "기본 수납칸 아이디")
+    private Long slotId;
+
     @Schema(description = "수납장 이미지 URL")
     private String imageUrl;
 
     @Schema(description = "수납장 수정 일시 yyyy-MM-dd HH:mm:ss 형식")
     private String updatedAt; // 수정 일시 yyyy-MM-dd HH:mm:ss
 
-    public ContainerResponse(Container container){
+    public ContainerResponse(Container container, Long slotId){
         this.containerId = container.getId();
         this.title = container.getTitle();
         this.imageUrl = container.getImage().getImageUrl();
+        this.slotId = slotId;
         this.updatedAt = container.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); // yyyy-MM-dd HH:mm:ss 형식으로 변환
     }
 }

@@ -3,6 +3,7 @@ package AISL.ADizzi.service;
 
 import AISL.ADizzi.dto.request.CreateSlotRequest;
 import AISL.ADizzi.dto.request.UpdateSlotRequest;
+import AISL.ADizzi.dto.response.ItemResponse;
 import AISL.ADizzi.dto.response.SlotResponse;
 import AISL.ADizzi.entity.Container;
 import AISL.ADizzi.entity.Image;
@@ -10,16 +11,16 @@ import AISL.ADizzi.entity.Member;
 import AISL.ADizzi.entity.Slot;
 import AISL.ADizzi.exception.ApiException;
 import AISL.ADizzi.exception.ErrorType;
-import AISL.ADizzi.repository.ContainerRepository;
-import AISL.ADizzi.repository.ImageRepository;
-import AISL.ADizzi.repository.MemberRepository;
-import AISL.ADizzi.repository.SlotRepository;
+import AISL.ADizzi.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,6 +32,7 @@ public class SlotService {
     public final MemberRepository memberRepository;
     public final ContainerRepository containerRepository;
     public final ImageRepository imageRepository;
+    public final ItemRepository itemRepository;
 
     @Transactional
     public void createSlot(Long memberId, Long containerId, CreateSlotRequest request) {
@@ -92,7 +94,7 @@ public class SlotService {
     }
 
     @Transactional(readOnly = true)
-    public List<SlotResponse> getMySlot(Long containerId, String sortBy) {
+    public Map<String, Object> getMySlot(Long containerId, String sortBy) {
         Container container = containerRepository.findById(containerId).orElseThrow(() -> new ApiException(ErrorType.CONTAINER_NOT_FOUND));
         List<Slot> slots;
 
@@ -105,7 +107,33 @@ public class SlotService {
                 slots = slotRepository.findByContainerOrderByUpdatedAtDesc(container);
                 break;
         }
-        return slots.stream().map(SlotResponse::new).collect(Collectors.toList());
+
+        List<SlotResponse> slotResponses = slots.stream()
+                .filter(slot -> !Objects.equals(slot.getTitle(), " "))
+                .map(SlotResponse::new)
+                .collect(Collectors.toList());
+
+        // 빈 제목의 슬롯에 대해 아이템 리스트 생성
+        List<ItemResponse> itemResponses;
+        if (sortBy.equals("old")) {
+            itemResponses = slots.stream()
+                    .filter(slot -> Objects.equals(slot.getTitle(), " "))
+                    .flatMap(slot -> itemRepository.findBySlotOrderByUpdatedAtAsc(slot).stream()
+                            .map(ItemResponse::new)) // 아이템 응답 변환
+                    .collect(Collectors.toList());
+        } else {
+            itemResponses = slots.stream()
+                    .filter(slot -> Objects.equals(slot.getTitle(), " "))
+                    .flatMap(slot -> itemRepository.findBySlotOrderByUpdatedAtDesc(slot).stream()
+                            .map(ItemResponse::new)) // 아이템 응답 변환
+                    .collect(Collectors.toList());
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("items", itemResponses);
+        response.put("slots", slotResponses);
+
+        return response;
     }
 
 }

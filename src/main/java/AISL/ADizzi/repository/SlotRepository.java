@@ -17,5 +17,7 @@ public interface SlotRepository extends JpaRepository<Slot, Long> {
     // 이름으로 검색
     List<Slot> findByTitleContaining(String query);
 
+    Slot findDistinctFirstByContainerAndTitle(Container container, String title);
+
     boolean existsByContainerAndTitle(Container container, String title);
 }

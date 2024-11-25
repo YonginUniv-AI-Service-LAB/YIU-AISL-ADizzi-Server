@@ -32,7 +32,7 @@ public class ImageController {
         String profileImage = s3ImageService.upload(image);
         return ResponseEntity.ok(profileImage);
     }
-    @Operation(summary = "이미지 삭제. 이미지 URL입력")
+    @Operation(summary = "이미지 삭제. Params: {addr: IMAGE_URL}")
     @DeleteMapping("/s3")
     public ResponseEntity<?> s3delete(@RequestParam String addr){
         s3ImageService.deleteImageFromS3(addr);

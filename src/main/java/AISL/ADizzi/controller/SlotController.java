@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -50,11 +51,11 @@ public class SlotController {
 
     @Operation(summary = "수납칸 조회. sortBy 옵션: 최신순(recent), 오래된순(old), 기본 값은 recent")
     @GetMapping("/room/{roomId}/container/{containerId}/slot") // 전체 게시글 조회
-    public ResponseEntity<List<SlotResponse>> getMySlot(
+    public ResponseEntity<Map<String, Object>> getMySlot(
             @RequestHeader("Authorization") String token,
             @PathVariable Long containerId,
             @RequestParam(value = "sortBy", defaultValue = "recent") String sortBy) {
-        List<SlotResponse> containers = slotService.getMySlot(containerId, sortBy);
-        return ResponseEntity.ok(containers);
+        Map<String, Object> response = slotService.getMySlot(containerId, sortBy);
+        return ResponseEntity.ok(response);
     }
 }

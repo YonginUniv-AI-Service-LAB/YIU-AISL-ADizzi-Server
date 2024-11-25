@@ -44,7 +44,6 @@ public class ContainerService {
                 image
         );
 
-        // TODO: Default 슬롯 생성 코드 추가 필요 (슬롯 api작성 후)
         Slot slot = new Slot(
                 container,
                 " ",
@@ -106,7 +105,17 @@ public class ContainerService {
                 containers = containerRepository.findByRoomOrderByUpdatedAtDesc(room);
                 break;
         }
-        return containers.stream().map(ContainerResponse::new).collect(Collectors.toList());
+
+        List<ContainerResponse> containerResponses = containers.stream()
+                .map(container -> {
+                    // 조건에 맞는 슬롯을 찾기
+                    Slot slot = slotRepository.findDistinctFirstByContainerAndTitle(container, " ");
+                    Long slotId = (slot != null) ? slot.getId() : null; // 슬롯이 없으면 null
+                    return new ContainerResponse(container, slotId); // 슬롯 ID 포함하여 생성
+                })
+                .collect(Collectors.toList());
+
+        return containerResponses;
     }
 
 }
