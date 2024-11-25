@@ -28,12 +28,8 @@ public class Image {
     @Column(nullable = false)
     private String imageUrl; // 이미지 URL
 
-    @Column(nullable = false)
-    private Long type; // 물건 카테고리 [room: 1, container: 2, slot: 3, item: 4]
-
-    public Image(String imageUrl, Long type) {
+    public Image(String imageUrl) {
         this.imageUrl = imageUrl;
-        this.type = type;
         this.createdAt = LocalDateTime.now(); // 객체 생성 시 현재 시간으로 설정
     }
 }
