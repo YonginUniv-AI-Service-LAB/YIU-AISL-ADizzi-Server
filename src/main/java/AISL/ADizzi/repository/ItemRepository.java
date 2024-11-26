@@ -23,8 +23,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     // 설명으로 검색
     List<Item> findByDetailContaining(String query);
 
-
-
     // 방 -> 수납장 -> 수납칸 -> 물건의 연관 관계를 통해 데이터를 검색합니다.
     // 물건의 제목이나 상세 내용에 query 문자열이 포함되어 있는지 검사합니다.
     @Query("""
