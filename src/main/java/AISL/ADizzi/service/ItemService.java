@@ -51,6 +51,17 @@ public class ItemService {
         return items.stream().map(ItemResponse::new).collect(Collectors.toList());
     }
 
+    // 수납칸에 해당하는 물건 카테고리별 조회
+    @Transactional
+    public List<ItemResponse> getItemsByCategory(Long memberId, Long slotId, Long categoryId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
+        Slot slot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
+
+        List<Item> items = itemRepository.findBySlotAndCategory(slot, categoryId);
+        return items.stream().map(ItemResponse::new).collect(Collectors.toList());
+    }
+
+
     // 수납칸에 해당하는 물건 생성
     @Transactional
     public void createItem(Long memberId, Long slotId, CreateItemRequest request) {
@@ -128,12 +139,9 @@ public class ItemService {
     // 물건 이동
     @Transactional
     public void moveItem(Long memberId, Long slotId, Long itemId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
-        Slot targetSlot = slotRepository.findById(slotId)
-                .orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ApiException(ErrorType.ITEM_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
+        Slot targetSlot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ApiException(ErrorType.ITEM_NOT_FOUND));
 
         // 권한 확인
         if (!item.getMember().equals(member) || !targetSlot.getContainer().getRoom().getMember().equals(member)) {

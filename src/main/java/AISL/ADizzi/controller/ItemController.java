@@ -33,6 +33,18 @@ public class ItemController {
         return ResponseEntity.ok(items);
     }
 
+    @Operation(summary = "수납칸에 해당하는 물건 카테고리별 조회")
+    @GetMapping("/room/{roomId}/container/{containerId}/slot/{slotId}/item/category/{categoryId}")
+    public ResponseEntity<List<ItemResponse>> getMyItemsByCategory(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long slotId,
+            @PathVariable Long categoryId)
+    {
+        Long memberId =JwtUtil.extractAccessToken(token);
+        List<ItemResponse> items = itemService.getItemsByCategory(memberId, slotId, categoryId);
+        return ResponseEntity.ok(items);
+    }
+
     @Operation(summary = "수납칸에 물건 생성")
     @PostMapping("/room/{roomId}/container/{containerId}/slot/{slotId}/item")
     public ResponseEntity<String> createItem(
