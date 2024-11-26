@@ -33,18 +33,18 @@ public class RoomController {
     }
 
     @Operation(summary = "방 수정. 수정할 속성만 입력")
-    @PutMapping("/room/{room_id}") // 게시글 수정
-    public ResponseEntity<String> updateRoom(@RequestHeader("Authorization") String token, @PathVariable Long room_id, @Valid @RequestBody UpdateRoomRequest request) {
+    @PutMapping("/room/{roomId}") // 게시글 수정
+    public ResponseEntity<String> updateRoom(@RequestHeader("Authorization") String token, @PathVariable Long roomId, @Valid @RequestBody UpdateRoomRequest request) {
         Long memberId = JwtUtil.extractAccessToken(token);
-        roomService.updateRoom(memberId, room_id, request);
+        roomService.updateRoom(memberId, roomId, request);
         return ResponseEntity.ok("success");
     }
 
     @Operation(summary = "방 삭제")
-    @DeleteMapping("/room/{room_id}") // 게시글 삭제
-    public ResponseEntity<String> deleteRoom(@RequestHeader("Authorization") String token, @PathVariable Long room_id) {
+    @DeleteMapping("/room/{roomId}") // 게시글 삭제
+    public ResponseEntity<String> deleteRoom(@RequestHeader("Authorization") String token, @PathVariable Long roomId) {
         Long memberId = JwtUtil.extractAccessToken(token);
-        roomService.deleteRoom(memberId, room_id);
+        roomService.deleteRoom(memberId, roomId);
         return ResponseEntity.ok("success");
     }
 

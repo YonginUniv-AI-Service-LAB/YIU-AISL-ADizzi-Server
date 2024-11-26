@@ -16,4 +16,6 @@ public interface ContainerRepository extends JpaRepository<Container, Long> {
 
     // 이름으로 검색
     List<Container> findByTitleContaining(String query);
+
+    boolean existsByRoomAndTitle(Room room, String title);
 }

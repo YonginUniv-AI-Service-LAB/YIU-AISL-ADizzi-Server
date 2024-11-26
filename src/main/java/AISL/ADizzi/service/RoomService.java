@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,14 +46,15 @@ public class RoomService {
 
     @Transactional
     public void updateRoom(Long memberId, Long roomId, UpdateRoomRequest request) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
         Room room = roomRepository.findById(roomId).orElseThrow(() -> new ApiException(ErrorType.ROOM_NOT_FOUND));
 
-        if (!room.getMember().getId().equals(memberId)) {
+        if (!room.getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
 
         if (request.getTitle() != null) {
-            Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
             if (roomRepository.existsByMemberAndTitle(member, request.getTitle())) {
                 throw new ApiException(ErrorType.ROOM_ALREADY_EXISTS);
             }
@@ -67,6 +69,7 @@ public class RoomService {
             room.setColor(request.getColor());
         }
 
+        room.setUpdatedAt(LocalDateTime.now());
         roomRepository.save(room);
     }
 
