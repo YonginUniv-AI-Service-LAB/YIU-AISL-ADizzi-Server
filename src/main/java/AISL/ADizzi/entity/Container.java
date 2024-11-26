@@ -42,6 +42,9 @@ public class Container {
     @OneToMany(mappedBy = "container", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Slot> slots; // 방에 저장된 수납장 목록
 
+    @Column(nullable = true)
+    private Long slotId; // 기본 수납칸 아이디
+
     public Container(Room room, String title, Image image) {
         this.room = room;
         this.title = title;

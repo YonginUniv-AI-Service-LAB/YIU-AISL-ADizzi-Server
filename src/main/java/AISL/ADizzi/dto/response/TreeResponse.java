@@ -4,7 +4,9 @@ import AISL.ADizzi.entity.Room;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @Schema(description = "구조 정보")
@@ -29,6 +31,8 @@ public class TreeResponse {
         private Long containerId;
         @Schema(description = "수납장 이름")
         private String title;
+        @Schema(description = "기본 수납칸 아이디")
+        private Long slotId;
         @Schema(description = "수납칸 목록")
         private List<SlotInfo> slots;
     }
@@ -54,22 +58,25 @@ public class TreeResponse {
                         ContainerInfo containerInfo = new ContainerInfo();
                         containerInfo.setContainerId(container.getId()); // 수납장 ID
                         containerInfo.setTitle(container.getTitle()); // 수납장 이름
-
+                        containerInfo.setSlotId(container.getSlotId());
                         // 수납칸 목록을 설정하는 로직 추가 (예시)
                         if (container.getSlots() != null) {
                             List<SlotInfo> slotInfoList = container.getSlots().stream()
+                                    .filter(slot -> !Objects.equals(slot.getTitle(), " "))
                                     .map(slot -> {
                                         SlotInfo slotInfo = new SlotInfo();
                                         slotInfo.setSlotId(slot.getId()); // 수납칸 ID
                                         slotInfo.setTitle(slot.getTitle()); // 수납칸 이름
                                         return slotInfo;
                                     })
+                                    .sorted(Comparator.comparing(SlotInfo::getTitle))
                                     .toList(); // Java 16 이상에서 사용 가능
                             containerInfo.setSlots(slotInfoList);
                         }
 
                         return containerInfo;
                     })
+                    .sorted(Comparator.comparing(ContainerInfo::getTitle))
                     .toList(); // Java 16 이상에서 사용 가능
             this.containers = containerInfoList;
         }
