@@ -50,18 +50,33 @@ public enum ErrorType {
     ROOM_ALREADY_EXISTS("E801", "이미 사용 중인 이름입니다."),
     ROOM_NOT_FOUND("E802", "해당 방을 찾을 수 없습니다."),
 
+    // 수납장 관련
+    CONTAINER_ALREADY_EXISTS("E1201", "이미 사용 중인 이름입니다."),
+    CONTAINER_NOT_FOUND("E1202", "해당 수납장을 찾을 수 없습니다."),
+
     // 슬롯 관련
+    SLOT_ALREADY_EXISTS("E901", "이미 사용 중인 이름입니다."),
     SLOT_NOT_FOUND("E902","해당 슬롯을 찾을 수 없습니다." ),
 
     // 물건 관련
     ITEM_ALREADY_EXISTS("E1001", "이미 사용 중인 이름입니다."),
     ITEM_NOT_FOUND("E1002", "해당 물건을 찾을 수 없습니다."),
 
-    // 사진
-    IMAGE_NOT_FOUND("E1101","해당 사진을 찾을 수 없습니다." ),
-    INVALID_IMAGE("E1102", "해당 사진이 비어있습니다." ),
-    IMAGE_UPLOAD_FAILED("E1103","업로드 실패." )
-    ;
+    // 이미지
+    IMAGE_NOT_FOUND("E1101","해당 이미지을 찾을 수 없습니다." ),
+    INVALID_IMAGE("E1102", "해당 이미지이 비어있습니다." ),
+    IMAGE_UPLOAD_FAILED("E1103","업로드 실패." ),
+
+    EMPTY_FILE_EXCEPTION("E1301", "이미지 파일이 비어있습니다." ),
+    IO_EXCEPTION_ON_IMAGE_UPLOAD("E1302", "이미지 업로드 중 문제가 발생하였습니다." ),
+    NO_FILE_EXTENTION("E1303", "파일의 확장자가 없습니다." ),
+    INVALID_FILE_EXTENTION("E1304", "유효한 파일 확장자가 아닙니다." ),
+    PUT_OBJECT_EXCEPTION("E1305", "이미지 업로드 실패" ),
+    IO_EXCEPTION_ON_IMAGE_DELETE("E1306", "이미지 삭제 실패" ),
+
+    // 검색
+    NO_SEARCH_RESULTS("E1401","검색 결과가 없습니다." ),
+    MISSING_SEARCH_KEYWORD("E1402","검색어를 입력하지 않았습니다." );
 
     private final String code;
     private final String message;
