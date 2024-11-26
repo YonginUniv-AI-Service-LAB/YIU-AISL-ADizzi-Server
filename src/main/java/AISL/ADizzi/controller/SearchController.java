@@ -21,7 +21,6 @@ public class SearchController {
 
     private final SearchService searchService;
 
-
     @Operation(summary = "물건 검색 (물건의 이름과 설명으로 검색 가능)")
     @GetMapping("/search")
     public ResponseEntity <List<ItemResponse>> searchItems (

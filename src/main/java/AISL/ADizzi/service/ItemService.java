@@ -140,32 +140,26 @@ public class ItemService {
     @Transactional
     public void moveItem(Long memberId, Long slotId, Long itemId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
-        Slot targetSlot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
+        Slot slot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ApiException(ErrorType.ITEM_NOT_FOUND));
 
         // 권한 확인
-        if (!item.getMember().equals(member) || !targetSlot.getContainer().getRoom().getMember().equals(member)) {
+        if (!item.getMember().equals(member) || !slot.getContainer().getRoom().getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
 
         // 물건을 옮길 수납칸에 중복된 title이 있을 경우 "title(1)" 형태로 수정
         String baseTitle = item.getTitle();  // 원본 title
         String newTitle = baseTitle;  // 새로운 제목 (기본값은 원본 제목)
-        int count = itemRepository.countBySlotAndTitle(targetSlot, baseTitle);  // 기존 제목 중복 갯수
+        int index = 1;
 
-        // 중복 제목이 있을 경우 "title(1)", "title(2)" 형식으로 수정
-        if (count > 0) {
-            // 중복된 제목이 있으면 "(1)", "(2)", "(3)" 등으로 변경
-            int index = 1;
-            while (itemRepository.existsBySlotAndTitle(targetSlot, newTitle)) {
-                newTitle = baseTitle + " (" + index + ")";
-                index++;
-            }
-            item.setTitle(newTitle);
+        while (itemRepository.existsBySlotAndTitle(slot, newTitle)) {
+            newTitle = baseTitle + "(" + index + ")";
+            index++;
         }
 
-
-        item.setSlot(targetSlot);
+        item.setTitle(newTitle);
+        item.setSlot(slot);
         item.setUpdatedAt(LocalDateTime.now());
 
         itemRepository.save(item);
