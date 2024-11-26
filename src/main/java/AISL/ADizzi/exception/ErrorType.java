@@ -72,7 +72,11 @@ public enum ErrorType {
     NO_FILE_EXTENTION("E1303", "파일의 확장자가 없습니다." ),
     INVALID_FILE_EXTENTION("E1304", "유효한 파일 확장자가 아닙니다." ),
     PUT_OBJECT_EXCEPTION("E1305", "이미지 업로드 실패" ),
-    IO_EXCEPTION_ON_IMAGE_DELETE("E1306", "이미지 삭제 실패" )
+    IO_EXCEPTION_ON_IMAGE_DELETE("E1306", "이미지 삭제 실패" ),
+
+    // 검색
+    NO_SEARCH_RESULTS("E1401","검색 결과가 없습니다." ),
+    MISSING_SEARCH_KEYWORD("E1402","검색어를 입력하지 않았습니다." )
     ;
 
     private final String code;

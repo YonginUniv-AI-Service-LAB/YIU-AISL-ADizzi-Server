@@ -137,5 +137,4 @@ public class SlotService {
 
         return response;
     }
-
 }

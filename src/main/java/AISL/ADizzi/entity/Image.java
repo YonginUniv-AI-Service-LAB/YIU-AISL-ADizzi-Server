@@ -33,4 +33,3 @@ public class Image {
         this.createdAt = LocalDateTime.now(); // 객체 생성 시 현재 시간으로 설정
     }
 }
-

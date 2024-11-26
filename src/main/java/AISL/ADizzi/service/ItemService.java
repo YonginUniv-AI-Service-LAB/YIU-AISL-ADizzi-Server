@@ -17,7 +17,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,20 +26,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemService {
 
-
     private final SlotRepository slotRepository;
     private final ItemRepository itemRepository;
     private final ImageRepository imageRepository;
     private final MemberRepository memberRepository;
 
 
-
-    // 슬롯에 해당하는 아이템 목록 최신순, 오래된순
+    // 수납칸에 해당하는 물건 목록 최신순, 오래된순
     @Transactional
-    public List<ItemResponse> getMyItems(Long memberId,Long slotId, String sortBy) {
-
-        memberRepository.findById(memberId).orElseThrow(()->new ApiException(ErrorType.MEMBER_NOT_FOUND));
-
+    public List<ItemResponse> getMyItems(Long slotId, String sortBy) {
         Slot slot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
         List<Item> items;
 
@@ -57,33 +51,34 @@ public class ItemService {
         return items.stream().map(ItemResponse::new).collect(Collectors.toList());
     }
 
-    // 아이템 카테고리별 조회
-
-
-    // 슬롯에 해당하는 아이템 생성
+    // 수납칸에 해당하는 물건 카테고리별 조회
     @Transactional
-    public void createItem(Long memberId, Long slotId, CreateItemRequest request) {
-        // 토큰 유효성 검사
-        Member member = memberRepository.findById(memberId).orElseThrow(()->new ApiException(ErrorType.MEMBER_NOT_FOUND));
-        // slotId에 해당하는 슬롯 조회
+    public List<ItemResponse> getItemsByCategory(Long memberId, Long slotId, Long categoryId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
         Slot slot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
 
-        // 슬롯에 동일한 title을 가진 아이템이 이미 존재하는지 확인
+        List<Item> items = itemRepository.findBySlotAndCategory(slot, categoryId);
+        return items.stream().map(ItemResponse::new).collect(Collectors.toList());
+    }
+
+
+    // 수납칸에 해당하는 물건 생성
+    @Transactional
+    public void createItem(Long memberId, Long slotId, CreateItemRequest request) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
+        Slot slot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
+
         if (itemRepository.existsBySlotAndTitle(slot, request.getTitle())) {
             throw new ApiException(ErrorType.ITEM_ALREADY_EXISTS);
         }
 
-        // 이미지 저장 및 Image 엔티티 생성
         Image image = imageRepository.findById(request.getImageId()).orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
 
-
-
-        // 5. 아이템 객체 생성
         Item item = new Item(
                 slot,
                 request.getTitle(),
                 request.getDetail(),
-                image, // Image 엔티티 추가
+                image,
                 request.getCategory(),
                 member
         );
@@ -92,28 +87,23 @@ public class ItemService {
     }
 
 
-
-    // 아이템 수정
+    // 물건 수정
     @Transactional
-    public void updateItem(Long memberId,Long slotId,Long itemId, UpdateItemRequest request) {
-        Member member = memberRepository.findById(memberId).orElseThrow(()->new ApiException(ErrorType.MEMBER_NOT_FOUND));
-
+    public void updateItem(Long memberId, Long itemId, UpdateItemRequest request) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ApiException(ErrorType.ITEM_NOT_FOUND));
-        // 사용자가 슬롯에 접근할 권한이 있는지 검사
+
         if(!item.getMember().equals(member)){
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
-        // 슬롯 조회
-        Slot slot = slotRepository.findById(slotId)
-                .orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
 
-        //슬롯에 동이한 title을 가진 아이템이 있는지 중복 검사
         if(request.getTitle() != null) {
-            if (itemRepository.existsBySlotAndTitle(slot, request.getTitle())) {
-                throw new ApiException(ErrorType.ITEM_ALREADY_EXISTS);  /// 슬롯을 아이템으로 변경
+            if (itemRepository.existsBySlotAndTitle(item.getSlot(), request.getTitle())) {
+                throw new ApiException(ErrorType.ITEM_ALREADY_EXISTS);
             }
             item.setTitle(request.getTitle());
         }
+
         if (request.getDetail() != null) {
             item.setDetail(request.getDetail());
         }
@@ -132,7 +122,7 @@ public class ItemService {
         itemRepository.save(item);
     }
 
-
+    // 물건 삭제
     @Transactional
     public void deleteItem(Long memberId, Long ItemId) {
 
@@ -146,8 +136,40 @@ public class ItemService {
         itemRepository.delete(item);
     }
 
+    // 물건 이동
+    @Transactional
+    public void moveItem(Long memberId, Long slotId, Long itemId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
+        Slot targetSlot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ApiException(ErrorType.ITEM_NOT_FOUND));
+
+        // 권한 확인
+        if (!item.getMember().equals(member) || !targetSlot.getContainer().getRoom().getMember().equals(member)) {
+            throw new ApiException(ErrorType.INVALID_AUTHOR);
+        }
+
+        // 물건을 옮길 수납칸에 중복된 title이 있을 경우 "title(1)" 형태로 수정
+        String baseTitle = item.getTitle();  // 원본 title
+        String newTitle = baseTitle;  // 새로운 제목 (기본값은 원본 제목)
+        int count = itemRepository.countBySlotAndTitle(targetSlot, baseTitle);  // 기존 제목 중복 갯수
+
+        // 중복 제목이 있을 경우 "title(1)", "title(2)" 형식으로 수정
+        if (count > 0) {
+            // 중복된 제목이 있으면 "(1)", "(2)", "(3)" 등으로 변경
+            int index = 1;
+            while (itemRepository.existsBySlotAndTitle(targetSlot, newTitle)) {
+                newTitle = baseTitle + " (" + index + ")";
+                index++;
+            }
+            item.setTitle(newTitle);
+        }
 
 
+        item.setSlot(targetSlot);
+        item.setUpdatedAt(LocalDateTime.now());
+
+        itemRepository.save(item);
+    }
 
 }
 

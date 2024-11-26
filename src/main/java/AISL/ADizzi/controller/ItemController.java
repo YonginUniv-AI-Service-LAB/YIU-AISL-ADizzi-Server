@@ -11,10 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -24,59 +22,76 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @Operation(summary = "수납칸에 속한 물건 목록 조회(최신순,오래된순)")
-    @GetMapping("/room/{room_id}/container/{container_id}/slot/{slot_id}")
+    @Operation(summary = "수납칸에 속한 물건 목록 조회(최신순, 오래된순)")
+    @GetMapping("/room/{roomId}/container/{containerId}/slot/{slotId}/item")
     public ResponseEntity<List<ItemResponse>> getMyItems(
             @RequestHeader("Authorization") String token,
-            @PathVariable Long slot_id,
+            @PathVariable Long slotId,
             @RequestParam(value = "sortBy", defaultValue = "recent") String sortBy)
     {
-        Long memberId = JwtUtil.extractAccessToken(token);
-        List<ItemResponse> items = itemService.getMyItems(memberId,slot_id,sortBy);
+        List<ItemResponse> items = itemService.getMyItems(slotId, sortBy);
+        return ResponseEntity.ok(items);
+    }
+
+    @Operation(summary = "수납칸에 해당하는 물건 카테고리별 조회")
+    @GetMapping("/room/{roomId}/container/{containerId}/slot/{slotId}/item/category/{categoryId}")
+    public ResponseEntity<List<ItemResponse>> getMyItemsByCategory(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long slotId,
+            @PathVariable Long categoryId)
+    {
+        Long memberId =JwtUtil.extractAccessToken(token);
+        List<ItemResponse> items = itemService.getItemsByCategory(memberId, slotId, categoryId);
         return ResponseEntity.ok(items);
     }
 
     @Operation(summary = "수납칸에 물건 생성")
-    @PostMapping("/room/{room_id}/container/{container_id}/slot/{slot_id}/item")
+    @PostMapping("/room/{roomId}/container/{containerId}/slot/{slotId}/item")
     public ResponseEntity<String> createItem(
             @RequestHeader("Authorization") String token,
-            @PathVariable Long slot_id,
+            @PathVariable Long slotId,
             @Valid @RequestBody CreateItemRequest request)
     {
-
         Long memberId = JwtUtil.extractAccessToken(token);
-        itemService.createItem(memberId,slot_id,request);
+        itemService.createItem(memberId, slotId, request);
         return ResponseEntity.ok("success");
     }
 
 
     @Operation(summary ="물건 수정")
-    @PutMapping("/room/{room_id}/container/{container_id}/slot/{slot_id}/item/{item_id}")
+    @PutMapping("/room/{roomId}/container/{containerId}/slot/{slotId}/item/{itemId}")
     public ResponseEntity<String> updateItem(
             @RequestHeader("Authorization") String token,
-            @PathVariable Long slot_id,
-            @PathVariable Long item_id,
+            @PathVariable Long itemId,
             @Valid @RequestBody UpdateItemRequest request)
     {
-
         Long memberId = JwtUtil.extractAccessToken(token);
-        itemService.updateItem(memberId, slot_id, item_id, request);
+        itemService.updateItem(memberId, itemId, request);
+        return ResponseEntity.ok("success");
+    }
+
+    @Operation(summary = "물건 이동")
+    @PatchMapping("/room/{roomId}/container/{containerId}/slot/{slotId}/item/{itemId}")
+    public ResponseEntity<String> moveItem(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long slotId,
+            @PathVariable Long itemId
+    ){
+        Long memberId = JwtUtil.extractAccessToken(token);
+        itemService.moveItem(memberId, slotId, itemId);
         return ResponseEntity.ok("success");
     }
 
     @Operation(summary = "물건 삭제")
-    @DeleteMapping("/room/{room_id}/container/{container_id}/slot/{slot_id}/item/{item_id}")
+    @DeleteMapping("/room/{roomId}/container/{containerId}/slot/{slotId}/item/{itemId}")
     public ResponseEntity<String> deleteItem(
             @RequestHeader("Authorization") String token,
-            @PathVariable Long item_id)
+            @PathVariable Long itemId)
     {
         Long memberId = JwtUtil.extractAccessToken(token);
-        itemService.deleteItem(memberId,item_id);
+        itemService.deleteItem(memberId, itemId);
         return ResponseEntity.ok("success");
     }
-
-
-
 
 
 }
