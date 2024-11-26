@@ -30,6 +30,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ImageRepository imageRepository;
     private final MemberRepository memberRepository;
+    private final ImageService imageService;
 
 
     // 수납칸에 해당하는 물건 목록 최신순, 오래된순
@@ -74,6 +75,10 @@ public class ItemService {
 
         Image image = imageRepository.findById(request.getImageId()).orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
 
+        if (itemRepository.existsByImage(image)) {
+            throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
+        }
+
         Item item = new Item(
                 slot,
                 request.getTitle(),
@@ -115,6 +120,9 @@ public class ItemService {
         if (request.getImageId() != null) {
             Image image = imageRepository.findById(request.getImageId())
                     .orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
+            if (!itemRepository.findByImage(image).equals(item)){
+                throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
+            }
             item.setImage(image);
         }
 
@@ -132,6 +140,10 @@ public class ItemService {
         if (!item.getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
+
+        Image image = item.getImage();
+        imageService.deleteImageFromS3(image.getImageUrl());
+        imageRepository.delete(image);
 
         itemRepository.delete(item);
     }

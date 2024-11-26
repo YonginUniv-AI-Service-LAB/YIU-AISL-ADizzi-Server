@@ -1,15 +1,12 @@
 package AISL.ADizzi.entity;
 
-import com.zaxxer.hikari.util.UtilityElf;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.awt.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter

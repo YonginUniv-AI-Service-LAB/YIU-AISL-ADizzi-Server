@@ -1,9 +1,6 @@
 package AISL.ADizzi.repository;
 
-import AISL.ADizzi.entity.Container;
-import AISL.ADizzi.entity.Item;
-import AISL.ADizzi.entity.Member;
-import AISL.ADizzi.entity.Slot;
+import AISL.ADizzi.entity.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,4 +31,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     boolean existsBySlotAndTitle(Slot slot, String title);
 
     int countBySlotAndTitle(Slot targetSlot, String title);
+
+    boolean existsByImage(Image image);
+
+    Item findByImage(Image image);
 }

@@ -26,6 +26,7 @@ public class ContainerService {
     private final ContainerRepository containerRepository;
     private final ImageRepository imageRepository;
     private final SlotRepository slotRepository;
+    private final ImageService imageService;
 
     @Transactional
     public void createContainer(Long memberId, Long roomId, CreateContainerRequest request) {
@@ -38,6 +39,10 @@ public class ContainerService {
         }
 
         Image image = imageRepository.findById(request.getImageId()).orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
+
+        if (containerRepository.existsByImage(image)) {
+            throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
+        }
 
         Container container = new Container(
                 room,
@@ -74,6 +79,9 @@ public class ContainerService {
 
         if (request.getImageId() != null) {
             Image image = imageRepository.findById(request.getImageId()).orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
+            if (!containerRepository.findByImage(image).equals(container)){
+                throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
+            }
             container.setImage(image);
         }
 
@@ -89,6 +97,10 @@ public class ContainerService {
         if (!container.getRoom().getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
+
+        Image image = container.getImage();
+        imageService.deleteImageFromS3(image.getImageUrl());
+        imageRepository.delete(image);
 
         containerRepository.delete(container);
     }

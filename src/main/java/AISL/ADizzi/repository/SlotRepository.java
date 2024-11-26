@@ -1,6 +1,7 @@
 package AISL.ADizzi.repository;
 
 import AISL.ADizzi.entity.Container;
+import AISL.ADizzi.entity.Image;
 import AISL.ADizzi.entity.Slot;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -20,4 +21,8 @@ public interface SlotRepository extends JpaRepository<Slot, Long> {
     Slot findDistinctFirstByContainerAndTitle(Container container, String title);
 
     boolean existsByContainerAndTitle(Container container, String title);
+
+    boolean existsByImage(Image image);
+
+    Slot findByImage(Image image);
 }
