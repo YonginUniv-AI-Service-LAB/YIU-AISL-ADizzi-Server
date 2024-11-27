@@ -22,6 +22,16 @@ public class ItemController {
 
     private final ItemService itemService;
 
+    @Operation(summary = "메인(전체 아이템 조회)")
+    @GetMapping("/items")
+    public ResponseEntity<List<ItemResponse>> getAllItems(
+            @RequestHeader("Authorization") String token)
+    {
+        Long memberId =JwtUtil.extractAccessToken(token);
+        List<ItemResponse> items = itemService.getAllItems(memberId);
+        return ResponseEntity.ok(items);
+    }
+
     @Operation(summary = "수납칸에 속한 물건 목록 조회(최신순, 오래된순)")
     @GetMapping("/room/{roomId}/container/{containerId}/slot/{slotId}/item")
     public ResponseEntity<List<ItemResponse>> getMyItems(

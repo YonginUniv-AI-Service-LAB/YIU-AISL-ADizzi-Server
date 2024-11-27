@@ -36,6 +36,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByUserAndQuery(@Param("userId") Long userId, @Param("query") String query);
 
 
+    List<Item> findByMember(Member member);
     // 수납칸에 해당하는 물건 카테고리로 조회
     @Query("SELECT i FROM Item i WHERE i.slot = :slot AND i.category = :category")
     List<Item> findBySlotAndCategory(Slot slot, @Param("category") Long category);
@@ -43,5 +44,4 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     // 해당 수납칸에 같은 이름의 물건이 있는지 검색
     boolean existsBySlotAndTitle(Slot slot, String title);
 
-    int countBySlotAndTitle(Slot targetSlot, String title);
 }
