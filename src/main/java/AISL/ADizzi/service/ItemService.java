@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,15 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ImageRepository imageRepository;
     private final MemberRepository memberRepository;
+
+    // 전체 아이템 조회
+    @Transactional
+    public List<ItemResponse> getAllItems(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
+        List<Item> items = itemRepository.findByMember(member);
+
+        return items.stream().map(ItemResponse::new).collect(Collectors.toList());
+    }
 
 
     // 수납칸에 해당하는 물건 목록 최신순, 오래된순
@@ -140,32 +150,28 @@ public class ItemService {
     @Transactional
     public void moveItem(Long memberId, Long slotId, Long itemId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
-        Slot targetSlot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
+        Slot Slot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ApiException(ErrorType.ITEM_NOT_FOUND));
 
         // 권한 확인
-        if (!item.getMember().equals(member) || !targetSlot.getContainer().getRoom().getMember().equals(member)) {
+        if (!item.getMember().equals(member) || !Slot.getContainer().getRoom().getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
 
         // 물건을 옮길 수납칸에 중복된 title이 있을 경우 "title(1)" 형태로 수정
         String baseTitle = item.getTitle();  // 원본 title
         String newTitle = baseTitle;  // 새로운 제목 (기본값은 원본 제목)
-        int count = itemRepository.countBySlotAndTitle(targetSlot, baseTitle);  // 기존 제목 중복 갯수
+        int index = 1;
 
-        // 중복 제목이 있을 경우 "title(1)", "title(2)" 형식으로 수정
-        if (count > 0) {
-            // 중복된 제목이 있으면 "(1)", "(2)", "(3)" 등으로 변경
-            int index = 1;
-            while (itemRepository.existsBySlotAndTitle(targetSlot, newTitle)) {
+
+        while (itemRepository.existsBySlotAndTitle(Slot, newTitle)) {
                 newTitle = baseTitle + " (" + index + ")";
                 index++;
-            }
-            item.setTitle(newTitle);
         }
 
 
-        item.setSlot(targetSlot);
+        item.setTitle(newTitle);
+        item.setSlot(Slot);
         item.setUpdatedAt(LocalDateTime.now());
 
         itemRepository.save(item);
