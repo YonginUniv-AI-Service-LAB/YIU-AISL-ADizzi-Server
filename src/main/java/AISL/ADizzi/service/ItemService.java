@@ -41,7 +41,6 @@ public class ItemService {
         return items.stream().map(ItemResponse::new).collect(Collectors.toList());
     }
 
-
     // 수납칸에 해당하는 물건 목록 최신순, 오래된순
     @Transactional
     public List<ItemResponse> getMyItems(Long slotId, String sortBy) {

@@ -8,11 +8,15 @@ import AISL.ADizzi.entity.Room;
 import AISL.ADizzi.exception.ApiException;
 import AISL.ADizzi.exception.ErrorType;
 import AISL.ADizzi.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.text.similarity.FuzzyScore;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -21,25 +25,18 @@ public class SearchService {
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
 
-    public List<ItemResponse> searchItems(Long memberId, String query) {
+    @Transactional
+    public List<ItemResponse> searchItems(Long userId, String query) {
         {
-            // 검색어가 null이거나 빈 문자열일 경우 예외 처리
-            if (query == null || query.isBlank()) {
-                throw new ApiException(ErrorType.MISSING_SEARCH_KEYWORD);
-            }
-
-            Member member = memberRepository.findById(memberId)
+            Member member = memberRepository.findById(userId)
                     .orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
 
-            // 검색 쿼리로 물건 조회
-            List<Item> items = itemRepository.findByUserAndQuery(memberId, query);
+            List<Item> items = itemRepository.findByMember(member); // 사용자에 해당하는 모든 아이템 가져오기
+            FuzzyScore fuzzyScore = new FuzzyScore(Locale.KOREA);
 
-            // 검색 결과가 없을 경우 예외 발생
-            if (items.isEmpty()) {
-                throw new ApiException(ErrorType.NO_SEARCH_RESULTS);
-            }
-            // 결과를 ItemResponse로 변환하여 반환
             return items.stream()
+                    .filter(item -> fuzzyScore.fuzzyScore(item.getTitle(), query) > 2 || // 유사도 점수 기준
+                            fuzzyScore.fuzzyScore(item.getDetail(), query) > 2)
                     .map(ItemResponse::new)
                     .toList();
         }
