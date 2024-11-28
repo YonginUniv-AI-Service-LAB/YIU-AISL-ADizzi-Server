@@ -24,6 +24,9 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findByMember(Member member);
 
+    List<Item> findByMemberOrderByUpdatedAtDesc(Member member);
+    List<Item> findByMemberOrderByUpdatedAtAsc(Member member);
+
     // 수납칸에 해당하는 물건 카테고리로 조회
     @Query("SELECT i FROM Item i WHERE i.slot = :slot AND i.category = :category")
     List<Item> findBySlotAndCategory(Slot slot, @Param("category") Long category);

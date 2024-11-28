@@ -22,17 +22,18 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @Operation(summary = "메인(전체 아이템 조회)")
+    @Operation(summary = "메인(전체 아이템 조회). sortBy 옵션: 최신순(recent), 오래된순(old), 기본 값은 recent")
     @GetMapping("/items")
     public ResponseEntity<List<ItemResponse>> getAllItems(
-            @RequestHeader("Authorization") String token)
+            @RequestHeader("Authorization") String token,
+            @RequestParam(value = "sortBy", defaultValue = "recent") String sortBy)
     {
         Long memberId =JwtUtil.extractAccessToken(token);
-        List<ItemResponse> items = itemService.getAllItems(memberId);
+        List<ItemResponse> items = itemService.getAllItems(memberId, sortBy);
         return ResponseEntity.ok(items);
     }
 
-    @Operation(summary = "수납칸에 속한 물건 목록 조회(최신순, 오래된순)")
+    @Operation(summary = "수납칸에 속한 물건 목록 조회. sortBy 옵션: 최신순(recent), 오래된순(old), 기본 값은 recent")
     @GetMapping("/room/{roomId}/container/{containerId}/slot/{slotId}/item")
     public ResponseEntity<List<ItemResponse>> getMyItems(
             @RequestHeader("Authorization") String token,

@@ -35,9 +35,19 @@ public class ItemService {
 
     // 전체 아이템 조회
     @Transactional
-    public List<ItemResponse> getAllItems(Long memberId) {
+    public List<ItemResponse> getAllItems(Long memberId, String sortBy) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
-        List<Item> items = itemRepository.findByMember(member);
+        List<Item> items;
+
+        switch (sortBy.toLowerCase()) {
+            case "old":
+                items = itemRepository.findByMemberOrderByUpdatedAtAsc(member);
+                break;
+            case "recent":
+            default:
+                items = itemRepository.findByMemberOrderByUpdatedAtDesc(member);
+                break;
+        }
 
         return items.stream().map(ItemResponse::new).collect(Collectors.toList());
     }
