@@ -12,7 +12,7 @@ public class ApplicationStartListener implements ApplicationListener<Application
         System.out.println();
         System.out.println("URL: http://localhost:" + port);
         // 서버 배포 주소
-//        System.out.println("URL: http://43.202.77.176:" + port);
+        System.out.println("URL: http://52.78.164.15:" + port);
         System.out.println();
     }
 }

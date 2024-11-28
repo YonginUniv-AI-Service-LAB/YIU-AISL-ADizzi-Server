@@ -11,6 +11,7 @@ import AISL.ADizzi.repository.MemberRepository;
 import AISL.ADizzi.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public void signUp(SignUpRequest request) {
@@ -27,9 +29,12 @@ public class MemberService {
             throw new ApiException(ErrorType.EMAIL_ALREADY_EXISTS);
         }
 
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
         Member member = new Member(
                 request.getEmail(),
-                request.getPassword() // 비밀번호 암호화 없이 그대로 저장
+                encodedPassword // 비밀번호 암호화 없이 그대로 저장
         );
 
         memberRepository.save(member);
@@ -41,7 +46,7 @@ public class MemberService {
                 .orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
 
         // 비밀번호가 일치하지 않으면 예외 발생
-        if (!request.getPassword().equals(member.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new ApiException(ErrorType.INVALID_PASSWORD);
         }
 
