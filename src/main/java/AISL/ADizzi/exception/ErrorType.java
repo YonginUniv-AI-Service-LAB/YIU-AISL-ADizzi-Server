@@ -64,8 +64,7 @@ public enum ErrorType {
 
     // 이미지
     IMAGE_NOT_FOUND("E1101","해당 이미지을 찾을 수 없습니다." ),
-    INVALID_IMAGE("E1102", "해당 이미지이 비어있습니다." ),
-    IMAGE_UPLOAD_FAILED("E1103","업로드 실패." ),
+    IMAGE_ALREADY_USED("E1102", "이미 사용중인 이미지입니다."),
 
     EMPTY_FILE_EXCEPTION("E1301", "이미지 파일이 비어있습니다." ),
     IO_EXCEPTION_ON_IMAGE_UPLOAD("E1302", "이미지 업로드 중 문제가 발생하였습니다." ),
@@ -76,7 +75,8 @@ public enum ErrorType {
 
     // 검색
     NO_SEARCH_RESULTS("E1401","검색 결과가 없습니다." ),
-    MISSING_SEARCH_KEYWORD("E1402","검색어를 입력하지 않았습니다." );
+    MISSING_SEARCH_KEYWORD("E1402","검색어를 입력하지 않았습니다." )
+    ;
 
     private final String code;
     private final String message;

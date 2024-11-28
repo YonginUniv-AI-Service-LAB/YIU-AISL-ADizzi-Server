@@ -34,6 +34,7 @@ public class SlotService {
     public final ContainerRepository containerRepository;
     public final ImageRepository imageRepository;
     public final ItemRepository itemRepository;
+    private final ImageService imageService;
 
     @Transactional
     public void createSlot(Long memberId, Long containerId, CreateSlotRequest request) {
@@ -46,6 +47,10 @@ public class SlotService {
         }
 
         Image image = imageRepository.findById(request.getImageId()).orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
+
+        if (slotRepository.existsByImage(image)) {
+            throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
+        }
 
         Slot slot = new Slot(
                 container,
@@ -76,6 +81,9 @@ public class SlotService {
 
         if (request.getImageId() != null) {
             Image image = imageRepository.findById(request.getImageId()).orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
+            if (!slotRepository.findByImage(image).equals(slot)){
+                throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
+            }
             slot.setImage(image);
         }
 
@@ -91,6 +99,9 @@ public class SlotService {
         if (!slot.getContainer().getRoom().getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
+        Image image = slot.getImage();
+        imageService.deleteImageFromS3(image.getImageUrl());
+        imageRepository.delete(image);
 
         slotRepository.delete(slot);
     }
@@ -137,5 +148,4 @@ public class SlotService {
 
         return response;
     }
-
 }

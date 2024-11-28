@@ -26,11 +26,11 @@ public class ContainerResponse {
     @Schema(description = "수납장 수정 일시 yyyy-MM-dd HH:mm:ss 형식")
     private String updatedAt; // 수정 일시 yyyy-MM-dd HH:mm:ss
 
-    public ContainerResponse(Container container, Long slotId){
+    public ContainerResponse(Container container) {
         this.containerId = container.getId();
         this.title = container.getTitle();
         this.imageUrl = container.getImage().getImageUrl();
-        this.slotId = slotId;
+        this.slotId = container.getSlotId();
         this.updatedAt = container.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); // yyyy-MM-dd HH:mm:ss 형식으로 변환
     }
 }

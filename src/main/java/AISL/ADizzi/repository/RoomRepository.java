@@ -15,6 +15,9 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     // 오래된순 정렬
     List<Room> findByMemberOrderByUpdatedAtAsc(Member member);
 
+    // 이름순 정렬
+    List<Room> findByMemberOrderByTitle(Member member);
+
     // 이름으로 검색
     List<Room> findByTitleContaining(String query);
 

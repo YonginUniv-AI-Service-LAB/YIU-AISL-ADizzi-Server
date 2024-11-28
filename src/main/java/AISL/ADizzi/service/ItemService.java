@@ -31,6 +31,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ImageRepository imageRepository;
     private final MemberRepository memberRepository;
+    private final ImageService imageService;
 
     // 전체 아이템 조회
     @Transactional
@@ -83,6 +84,10 @@ public class ItemService {
 
         Image image = imageRepository.findById(request.getImageId()).orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
 
+        if (itemRepository.existsByImage(image)) {
+            throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
+        }
+
         Item item = new Item(
                 slot,
                 request.getTitle(),
@@ -124,6 +129,9 @@ public class ItemService {
         if (request.getImageId() != null) {
             Image image = imageRepository.findById(request.getImageId())
                     .orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
+            if (!itemRepository.findByImage(image).equals(item)){
+                throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
+            }
             item.setImage(image);
         }
 
@@ -142,6 +150,10 @@ public class ItemService {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
 
+        Image image = item.getImage();
+        imageService.deleteImageFromS3(image.getImageUrl());
+        imageRepository.delete(image);
+
         itemRepository.delete(item);
     }
 
@@ -149,11 +161,11 @@ public class ItemService {
     @Transactional
     public void moveItem(Long memberId, Long slotId, Long itemId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
-        Slot Slot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
+        Slot slot = slotRepository.findById(slotId).orElseThrow(() -> new ApiException(ErrorType.SLOT_NOT_FOUND));
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ApiException(ErrorType.ITEM_NOT_FOUND));
 
         // 권한 확인
-        if (!item.getMember().equals(member) || !Slot.getContainer().getRoom().getMember().equals(member)) {
+        if (!item.getMember().equals(member) || !slot.getContainer().getRoom().getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
 
@@ -162,15 +174,13 @@ public class ItemService {
         String newTitle = baseTitle;  // 새로운 제목 (기본값은 원본 제목)
         int index = 1;
 
-
-        while (itemRepository.existsBySlotAndTitle(Slot, newTitle)) {
-                newTitle = baseTitle + " (" + index + ")";
-                index++;
+        while (itemRepository.existsBySlotAndTitle(slot, newTitle)) {
+            newTitle = baseTitle + " (" + index + ")";
+            index++;
         }
 
-
         item.setTitle(newTitle);
-        item.setSlot(Slot);
+        item.setSlot(slot);
         item.setUpdatedAt(LocalDateTime.now());
 
         itemRepository.save(item);

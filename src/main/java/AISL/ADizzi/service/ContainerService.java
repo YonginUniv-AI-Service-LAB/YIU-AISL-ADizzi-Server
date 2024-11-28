@@ -26,6 +26,7 @@ public class ContainerService {
     private final ContainerRepository containerRepository;
     private final ImageRepository imageRepository;
     private final SlotRepository slotRepository;
+    private final ImageService imageService;
 
     @Transactional
     public void createContainer(Long memberId, Long roomId, CreateContainerRequest request) {
@@ -38,6 +39,10 @@ public class ContainerService {
         }
 
         Image image = imageRepository.findById(request.getImageId()).orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
+
+        if (containerRepository.existsByImage(image)) {
+            throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
+        }
 
         Container container = new Container(
                 room,
@@ -53,7 +58,8 @@ public class ContainerService {
 
         containerRepository.save(container);
         slotRepository.save(slot);
-
+        container.setSlotId(slot.getId());
+        containerRepository.save(container);
     }
 
     @Transactional
@@ -74,6 +80,9 @@ public class ContainerService {
 
         if (request.getImageId() != null) {
             Image image = imageRepository.findById(request.getImageId()).orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
+            if (!containerRepository.findByImage(image).equals(container)){
+                throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
+            }
             container.setImage(image);
         }
 
@@ -89,6 +98,10 @@ public class ContainerService {
         if (!container.getRoom().getMember().equals(member)) {
             throw new ApiException(ErrorType.INVALID_AUTHOR);
         }
+
+        Image image = container.getImage();
+        imageService.deleteImageFromS3(image.getImageUrl());
+        imageRepository.delete(image);
 
         containerRepository.delete(container);
     }
@@ -108,16 +121,6 @@ public class ContainerService {
                 break;
         }
 
-        List<ContainerResponse> containerResponses = containers.stream()
-                .map(container -> {
-                    // 조건에 맞는 슬롯을 찾기
-                    Slot slot = slotRepository.findDistinctFirstByContainerAndTitle(container, " ");
-                    Long slotId = (slot != null) ? slot.getId() : null; // 슬롯이 없으면 null
-                    return new ContainerResponse(container, slotId); // 슬롯 ID 포함하여 생성
-                })
-                .collect(Collectors.toList());
-
-        return containerResponses;
+        return containers.stream().map(ContainerResponse::new).collect(Collectors.toList());
     }
-
 }
