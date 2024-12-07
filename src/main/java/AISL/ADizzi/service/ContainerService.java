@@ -80,7 +80,8 @@ public class ContainerService {
 
         if (request.getImageId() != null) {
             Image image = imageRepository.findById(request.getImageId()).orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
-            if (!containerRepository.findByImage(image).equals(container)){
+            Container foundContainer = containerRepository.findByImage(image);
+            if (foundContainer != null && !foundContainer.equals(container)){
                 throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
             }
             container.setImage(image);

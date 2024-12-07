@@ -81,7 +81,8 @@ public class SlotService {
 
         if (request.getImageId() != null) {
             Image image = imageRepository.findById(request.getImageId()).orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
-            if (!slotRepository.findByImage(image).equals(slot)){
+            Slot foundSlot = slotRepository.findByImage(image);
+            if (foundSlot != null && !foundSlot.equals(slot)){
                 throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
             }
             slot.setImage(image);

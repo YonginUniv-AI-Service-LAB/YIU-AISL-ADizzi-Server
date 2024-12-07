@@ -139,7 +139,8 @@ public class ItemService {
         if (request.getImageId() != null) {
             Image image = imageRepository.findById(request.getImageId())
                     .orElseThrow(() -> new ApiException(ErrorType.IMAGE_NOT_FOUND));
-            if (!itemRepository.findByImage(image).equals(item)){
+            Item foundItem = itemRepository.findByImage(image);
+            if (foundItem != null && !foundItem.equals(item)) {
                 throw new ApiException(ErrorType.IMAGE_ALREADY_USED);
             }
             item.setImage(image);
