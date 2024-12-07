@@ -64,7 +64,7 @@ public class MemberService {
                 .orElseThrow(() -> new ApiException(ErrorType.MEMBER_NOT_FOUND));
 
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            member.setPassword(request.getPassword()); // 비밀번호 암호화 없이 그대로 업데이트
+            member.setPassword(passwordEncoder.encode(request.getPassword())); // 비밀번호 암호화 없이 그대로 업데이트
         }
     }
 
