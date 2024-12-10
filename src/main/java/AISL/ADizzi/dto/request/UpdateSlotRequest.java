@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 @Schema(description = "수납칸 수정 요청 정보")
 public class UpdateSlotRequest {
-    @NotBlank(message = "수납칸 이름은 필수 입력 값입니다.")
     @Schema(description = "이름")
     private String title;
 
