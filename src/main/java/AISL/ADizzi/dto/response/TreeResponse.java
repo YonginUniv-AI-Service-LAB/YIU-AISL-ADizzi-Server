@@ -33,6 +33,8 @@ public class TreeResponse {
         private String title;
         @Schema(description = "기본 수납칸 아이디")
         private Long slotId;
+        @Schema(description = "수납장 이미지 URL")
+        private String imageUrl;
         @Schema(description = "수납칸 목록")
         private List<SlotInfo> slots;
     }
@@ -59,6 +61,7 @@ public class TreeResponse {
                         containerInfo.setContainerId(container.getId()); // 수납장 ID
                         containerInfo.setTitle(container.getTitle()); // 수납장 이름
                         containerInfo.setSlotId(container.getSlotId());
+                        containerInfo.setImageUrl(container.getImage().getImageUrl());
                         // 수납칸 목록을 설정하는 로직 추가 (예시)
                         if (container.getSlots() != null) {
                             List<SlotInfo> slotInfoList = container.getSlots().stream()
